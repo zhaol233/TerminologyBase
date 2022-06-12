@@ -1,0 +1,5 @@
+./input
+./merge
+./results
+__pycache__/
+run.log
