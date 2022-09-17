@@ -1,6 +1,7 @@
 ./input/
 ./merge/
 ./results/
+./neo4j/
 __pycache__/
 merge/
 run.log
