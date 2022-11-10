@@ -1,6 +1,4 @@
 input/
-merge/
 results/
-neo4j/
 __pycache__/
-run.log
+*.log
