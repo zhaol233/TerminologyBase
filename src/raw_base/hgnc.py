@@ -5,12 +5,11 @@
 import copy
 
 import pandas as pd
-from util import *
-from util import _node, _relation
+from term.src.utils.util import *
 import os
 import json
 
-hgnc_path = "./input/HGNC/hgnc_complete_set_2022-01-01.json"
+hgnc_path = root_path + "/input/HGNC/hgnc_complete_set_2022-01-01.json"
 
 
 def hgnc():
@@ -18,10 +17,10 @@ def hgnc():
     f = open(hgnc_path, 'r', encoding='UTF-8')
     data = json.load(f)["response"]["docs"]
     f.close()
-    node = copy.deepcopy(_node)
-    alias_node = copy.deepcopy(_node)
-    relation = copy.deepcopy(_relation)
-    coding_protein = copy.deepcopy(_relation)
+    node = copy.deepcopy(base_node)
+    alias_node = copy.deepcopy(base_node)
+    relation = copy.deepcopy(base_relation)
+    coding_protein = copy.deepcopy(base_relation)
 
     node.update({"full_name": [], "gene_group": [], "location": [], "class": [], "prename": [], "presymbol": [],
                  "OMIM_id": [], 'entrez_gene_id': []})
@@ -91,19 +90,19 @@ def hgnc():
     log.info(f"total relation {len(relation['node_id'])}")
     log.info(f"total coding protein relation {len(coding_protein['node_name'])}")
 
-    concept_path = "./results/hgnc/concept"
+    concept_path = root_path + "/results/hgnc/concept"
     os.makedirs(concept_path, exist_ok=True)
     pd.DataFrame(node).to_csv(concept_path + "/concept.csv", index=False)
 
-    synonym_path = "./results/hgnc/synonym"
+    synonym_path = root_path + "/results/hgnc/synonym"
     os.makedirs(synonym_path, exist_ok=True)
     pd.DataFrame(alias_node).to_csv(synonym_path + f"/concept.csv", index=False)
 
-    relation_path = "./results/hgnc/relation"
+    relation_path = root_path + "/results/hgnc/relation"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(relation).to_csv(relation_path + f"/relation.csv", index=False)
 
-    gene_coding_protein_path = "./results/hgnc/gene_coding_protein"
+    gene_coding_protein_path = root_path + "/results/mapping/gene2protein"
     os.makedirs(gene_coding_protein_path, exist_ok=True)
     pd.DataFrame(coding_protein).to_csv(gene_coding_protein_path + f"/relation_raw.csv",
                                         index=False)

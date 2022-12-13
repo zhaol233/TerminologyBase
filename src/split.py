@@ -28,6 +28,8 @@ def split(path, node_type):
 
 if __name__ == "__main__":
 
+    split('../results/hgnc/', 'relation')
+
     # split('./results/go/', 'relation')
     # split('./results/go/', 'synonym')
 
@@ -36,4 +38,4 @@ if __name__ == "__main__":
 
     # split('./results/NCI/', 'concept')
     # split('./results/NCI/', 'synonym')
-    split('./results/NCI/', 'relation')
+    # split('../results/NCI/', 'relation')

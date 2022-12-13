@@ -5,9 +5,10 @@
 import os
 
 import pandas as pd
-from util import add_data, db_code, generate_id
+from term.src.utils.util import add_data, db_code, generate_id
 
-biology_and_medical_terminology_base_concept = pd.read_csv("results/biology_and_medical_terminology_base/concept.csv")
+biology_and_medical_terminology_base_concept = pd.read_csv(
+    "../../results/biology_and_medical_terminology_base/concept.csv")
 
 relation = {"relation_id": [], "node_id": [], 'node_source': [], "relationed_node_id": [], "relationed_node_source": [],
             "relation_tag": [], "source": [], "original_code": []}
@@ -70,6 +71,6 @@ rel_sep_id += 1
 relation = add_data(relation, [relation_id, 'C014000000012913', 'NCI', '25', "Biology and Medical Terminology Base",
                                'is_A', "Biology and Medical Terminology Base", ''])
 
-relation_path = "./results/merge_db/Biology_and_Medical_Terminology_Base/relation"
+relation_path = "../../results/merge_db/Biology_and_Medical_Terminology_Base/relation"
 os.makedirs(relation_path, exist_ok=True)
 pd.DataFrame(relation).to_csv(relation_path + "/relation.csv", index=False)

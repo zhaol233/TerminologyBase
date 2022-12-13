@@ -291,11 +291,11 @@ def get_term(obo_path, entity, qualifier, relation_concept):
 
     res = pd.concat([pd.DataFrame(node), property_df], axis=1)
 
-    concept_path = f"./results/NCI/concept"
+    concept_path = f"../../results/NCI/concept"
     os.makedirs(concept_path, exist_ok=True)
     res.to_csv(concept_path + "/concept.csv", index=False)
 
-    synonym_path = f"./results/NCI/synonym"
+    synonym_path = f"../../results/NCI/synonym"
     os.makedirs(synonym_path, exist_ok=True)
     pd.DataFrame(alias_node).to_csv(synonym_path + "/concept.csv", index=False)
 
@@ -319,7 +319,7 @@ def get_is_a():
     #     f"<rdf:Description rdf:about=\"http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#{original_code}\"/>"
     #     for original_code in node_list]
     owl_line_original_code_dict = dict(zip(start_owl_line, node_list))
-    owl_path = f"./input/NCLt/branch/Thesaurus.owl"
+    owl_path = f"../../input/NCLt/branch/Thesaurus.owl"
     f = open(owl_path, 'r', encoding='UTF-8')
     lines = f.readlines()
     status = 0
@@ -354,11 +354,11 @@ if __name__ == "__main__":
     no_is_a_node = copy.deepcopy(_node)
     id_qualifier, relation_concept = get_tag("Abnormal_Cell")
 
-    obo_path = f"./input/NCLt/branch/Thesaurus.obo"
+    obo_path = f"../../input/NCLt/branch/Thesaurus.obo"
     get_term(obo_path, 'Thesaurus', id_qualifier, relation_concept)
     get_is_a()
 
-    relation_path = f"./results/NCI/relation"
+    relation_path = f"../../results/NCI/relation"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(relation).to_csv(relation_path + "/relation.csv", index=False)
 

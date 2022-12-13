@@ -7,27 +7,28 @@ import os
 import pandas as pd
 import numpy as np
 import datetime
-from term.util import *
+from term.src.utils.util import base_node, base_relation, log, db_code
 
-hgnc_gene = "../results/HGNC/concept.csv"
-coding_protein = '../results/HGNC/gene_coding_protein.csv'
-uniprot_protein = '../results/uniprot/uniprot_node_93114.csv'
-nci_gene = "../results/NCI/Gene/term_11629.csv"
-nci_gene_product = "../results/NCI/Gene_Product/term_7021.csv"
+
+df_hgnc_gene = root_path + "/results/HGNC/concept.csv"
+df_uniprot_protein = root_path + '/results/uniprot/uniprot_node_93114.csv'
+
 entrez_gene = '../results/hpo/entrez_gene.csv'
 
-go_gene = '../results/go/go_gene_616368.csv'
-res_dir = "../results/mapping"
-os.makedirs(res_dir, exist_ok=True)
+# mapping
+gene2go = root_path + '/results/mapping/gene2go/relation_raw.csv'
+protein2go = root_path + '/results/mapping/protein2go/relation_raw.csv'
+gene2protein = root_path + '/results/mapping/gene2go/relation_raw.csv'
+
+id_start = 1000000
 
 
-id_start = 174275
-print('id start:',id_start)
+def mapping_gene2go():
+    pass
 
 
 def gene_merge():
     df_hgnc = pd.read_csv(hgnc_gene, sep=',', header=0)
-    #
     df_nci = pd.read_csv(nci_gene, sep=',', header=0)
     gene_map = {"node_id": [], "relation_node_id": []}
     hgnc_entrez_map = {"node_id": [], "relation_node_id": []}
@@ -40,15 +41,11 @@ def gene_merge():
             relation_node_id = df_hgnc.loc[nci_hgnc_id, 'node_id']
             gene_map['node_id'].append(node_id)
             gene_map['relation_node_id'].append(relation_node_id)
-
     df_gene_map = pd.DataFrame(gene_map)
-
     global id_start
     print("df_gene_map", id_start, id_start + df_gene_map.shape[0])
     relation_id = [generate_id('R',db_code['mapping'],id) for id in range(id_start,id_start+df_gene_map.shape[0])]
-
     id_start += df_gene_map.shape[0]
-
     df_gene_map.insert(1, 'relation_id', relation_id)
     df_gene_map.insert(3, 'mapping_rule', 'same_as')
     df_gene_map.insert(4, 'create_date', datetime.datetime.now().strftime('%Y-%m-%d'))
@@ -124,7 +121,6 @@ def protein_merge():
     df_coding_protein.insert(1, 'relation_id', relation_id)
     df_coding_protein.insert(3, 'mapping_rule', 'gene_coding_protein')
     df_coding_protein.insert(4, 'create_date', datetime.datetime.now().strftime('%Y-%m-%d'))
-
     df_coding_protein.to_csv(res_dir + '/hgnc_gene_coding_protein_merged.csv', index=False)
 
 

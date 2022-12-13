@@ -1,6 +1,6 @@
 import pandas as pd
 
-local_path = "./results/disease/"
+local_path = "../results/disease/"
 
 path1 = "disease_disorder_finding1/term_19681.csv"
 path2 = "disease_disorder_finding1/is_A.csv"

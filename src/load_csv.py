@@ -1,5 +1,5 @@
 import pandas as pd
-from util import *
+from term.src.utils.util import *
 import os
 
 path_dict = {

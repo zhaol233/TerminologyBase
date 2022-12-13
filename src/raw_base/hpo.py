@@ -4,14 +4,13 @@
 # @Description: TODO
 
 import pandas as pd
-from util import generate_id_with_origin_code, add_node, add_data, add_relation, generate_id
-from util import _node, _relation, log, db_code
+from term.src.utils.util import generate_id_with_origin_code, add_node, add_data, add_relation, generate_id
+from term.src.utils.util import base_node, base_relation, log, db_code, root_path
 import os
 
 import copy
 
-hpo_path = "./input/HPO/hp.obo"
-
+hpo_path = root_path + "/input/HPO/hp.obo"
 
 
 def hpo():
@@ -26,9 +25,9 @@ def hpo():
     is_A = False
     status = 0
 
-    node = copy.deepcopy(_node)
-    alias_node = copy.deepcopy(_node)
-    relation = copy.deepcopy(_relation)
+    node = copy.deepcopy(base_node)
+    alias_node = copy.deepcopy(base_node)
+    relation = copy.deepcopy(base_relation)
 
     node.update({"is_obsolete": [], "definition": [], "replaced_by": [], "comment": []})
     node = add_data(node, ['C012100000000000', 'obsolete_node_subset', 'Concept|HPO', 'HPO', '', 'true',
@@ -37,13 +36,6 @@ def hpo():
     relation_id = generate_id('R', db_code["HPO"], rel_seq_id)
     rel_seq_id += 1
     relation = add_relation(relation, relation_id, 'C012100000000000', 'C012000000000001', 'is_A', 'HPO', '')
-    omim_node = copy.deepcopy(_node)
-    orpha_node = copy.deepcopy(_node)
-    entrez_gene = copy.deepcopy(_node)
-
-    omim2hpo = copy.deepcopy(_relation)
-    orpha2hpo = copy.deepcopy(_relation)
-    hp2gene = copy.deepcopy(_relation)
 
     node_id = 'zhaoliangID'
     is_obsolete = 'false'
@@ -118,23 +110,32 @@ def hpo():
     log.info(f"HPO total term {len(node['node_id'])}")
     log.info(f"HPO total alias node term {len(alias_node['node_id'])}")
 
-    concept_path = "./results/hpo/concept"
+    concept_path = "../../results/hpo/concept"
     os.makedirs(concept_path, exist_ok=True)
     pd.DataFrame(node).to_csv(concept_path + "/concept.csv", index=False)
 
-    synonym_path = "./results/hpo/synonym"
+    synonym_path = "../../results/hpo/synonym"
     os.makedirs(synonym_path, exist_ok=True)
     pd.DataFrame(alias_node).to_csv(synonym_path + f"/concept.csv", index=False)
 
-    relation_path = "./results/hpo/relation"
+    relation_path = "../../results/hpo/relation"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(relation).to_csv(relation_path + f"/relation.csv", index=False)
 
     # 处理hpo2omim
+    omim_node = copy.deepcopy(base_node)
+    orpha_node = copy.deepcopy(base_node)
+    entrez_gene = copy.deepcopy(base_node)
+
+    omim2hpo = copy.deepcopy(base_relation)
+    orpha2hpo = copy.deepcopy(base_relation)
+    hp2gene = copy.deepcopy(base_relation)
+
     log.info("start to operate hpo2disease")
+
     mapping_id = 210033
-    disease2hpo_path = "./input/HPO/phenotype.hpoa"
-    hpo2gene_path = "./input/HPO/phenotype_to_genes.txt"
+    disease2hpo_path = root_path + "/input/HPO/phenotype.hpoa"
+    hpo2gene_path = "../../input/HPO/phenotype_to_genes.txt"
     phenotype = pd.read_csv(disease2hpo_path, header=0, skiprows=4, delimiter="\t",
                             usecols=["#DatabaseID", "DiseaseName", "Qualifier", "HPO_ID",
                                      "Evidence", "Onset", "Aspect"])
@@ -161,11 +162,11 @@ def hpo():
     omim2hpo['source'] = ['HPO' for _ in omim_disease_node_id]
     omim2hpo['original_code'] = ['' for _ in omim_disease_node_id]
 
-    relation_path = "./results/mapping/omim2hpo"
+    relation_path = "../../results/mapping/omim2hpo"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(omim2hpo).to_csv(relation_path + "/relation.csv", index=False)
 
-    concept_path = "./results/omim/concept"
+    concept_path = "../../results/omim/concept"
     os.makedirs(concept_path, exist_ok=True)
     df_omim = pd.DataFrame(omim_node)
     df_omim.drop_duplicates(subset=['node_id'], inplace=True)
@@ -190,11 +191,11 @@ def hpo():
     orpha2hpo['source'] = ['HPO' for _ in orpha_disease_node_id]
     orpha2hpo['original_code'] = ['' for _ in orpha_disease_node_id]
 
-    relation_path = "./results/mapping/orpha2hpo"
+    relation_path = "../../results/mapping/orpha2hpo"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(orpha2hpo).to_csv(relation_path + "/relation.csv", index=False)
 
-    concept_path = "./results/orpha/concept"
+    concept_path = "../../results/orpha/concept"
     os.makedirs(concept_path, exist_ok=True)
     df_orpha = pd.DataFrame(orpha_node)
     df_orpha.drop_duplicates(subset=['node_id'], inplace=True)
@@ -233,13 +234,13 @@ def hpo():
     mapping_id += len(node_id)
     log.info(f"finally mapping_id: {mapping_id}")
 
-    concept_path = "./results/Entrez/concept"
+    concept_path = "../../results/Entrez/concept"
     os.makedirs(concept_path, exist_ok=True)
     df_gene = pd.DataFrame(entrez_gene)
     df_gene.drop_duplicates(subset=['node_id'], inplace=True)
     df_gene.to_csv(concept_path + "/concept.csv", index=False)
 
-    relation_path = "./results/mapping/hpo2gene"
+    relation_path = "../../results/mapping/hpo2gene"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(hp2gene).to_csv(relation_path + "/relation.csv", index=False)
 

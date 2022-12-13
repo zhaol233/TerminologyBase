@@ -5,7 +5,8 @@
 
 
 import logging
-import time
+
+root_path = 'D:/python_ws/term'
 
 verhoeff_table_d = (
     (0, 1, 2, 3, 4, 5, 6, 7, 8, 9),
@@ -29,11 +30,9 @@ verhoeff_table_p = (
     (7, 0, 4, 6, 9, 1, 3, 2, 5, 8))
 verhoeff_table_inv = (0, 4, 3, 2, 1, 5, 6, 7, 8, 9)
 
-_node = {"node_id": [], "node_name": [], "tag": [], "source": [], "original_code": []}
-_relation = {"relation_id": [], "node_id": [], "relationed_node_id": [], "relation_tag": [], "source": [],
-             "original_code": []}
-
-a = {'hah':[]}
+base_node = {"node_id": [], "node_name": [], "tag": [], "source": [], "original_code": []}
+base_relation = {"relation_id": [], "node_id": [], "relationed_node_id": [], "relation_tag": [], "source": [],
+                 "original_code": []}
 
 
 def calcsum(number):
@@ -97,8 +96,13 @@ def generate_id_with_origin_code(node_type, db_code, id):
 
 db_code = {
     "mapping": '00',
-    "biology_and_medical_terminology":'100',
+
+    "biology_and_medical_terminology": '100',
     "copd": '101',
+    'covid19': '102',
+    'lung': '103',
+    'asthma': '104',
+
     "HGNC": "09",
     "GO": "10",
     "UniProt": "11",
@@ -106,7 +110,7 @@ db_code = {
     "KEGG": "13",
     "NCI": "14",
     'OMIM': '15',
-    'ORPHA':'17',
+    'ORPHA': '17',
     "entrez": '16'
 
 }
@@ -163,14 +167,15 @@ class MyLogging:
 
         self.logger.setLevel(self.level)
 
-        logging.basicConfig(level=logging.DEBUG,
-                            format='[%(asctime)s] [%(filename)s]-->[%(levelname)s] %(message)s',
-                            datefmt='%Y-%m-%d %H:%M:%S',
-                            filename=log_path,
-                            filemode='a')
+        # logging.basicConfig(level=logging.DEBUG,
+        #                     format='[%(asctime)s] [%(filename)s]-->[%(levelname)s] %(message)s',
+        #                     datefmt='%Y-%m-%d %H:%M:%S',
+        #                     filename=log_path,
+        #                     filemode='a')
 
         console_format = logging.Formatter(
-            '[%(asctime)s] [%(filename)s]-->[%(levelname)s] %(message)s')  # [line:%(lineno)d]
+            fmt='[%(asctime)s] [%(filename)s]-->[%(levelname)s] %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S')
 
         # filehandler = logging.FileHandler(log_path)
         # filehandler.setLevel(self.level)

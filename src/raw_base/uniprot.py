@@ -9,7 +9,7 @@ import os
 from util import add_data, generate_id, add_relation
 from util import _node, _relation, log, db_code
 
-uniprot_path = "./input/UNIPROT/uniprot-filtered-organism__Homo+sapiens+(Human)+[9606]_.xlsx"
+uniprot_path = "../../input/UNIPROT/uniprot-filtered-organism__Homo+sapiens+(Human)+[9606]_.xlsx"
 
 
 def uniprot():
@@ -46,11 +46,11 @@ def uniprot():
     #     print(key, len(relation[key]))
     # print(list(relation.keys()))
 
-    relation_path = "./results/uniprot/relation"
+    relation_path = "../../results/uniprot/relation"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(relation).to_csv(relation_path + "/relation.csv", index=False)
 
-    concept_path = "./results/uniprot/concept"
+    concept_path = "../../results/uniprot/concept"
     os.makedirs(concept_path, exist_ok=True)
     node = add_data(node,
                     ['C01100000000000000', 'PROTEIN', 'Concept|UniProt', "UniProt", '', 'virtual root node', ''])
@@ -59,7 +59,7 @@ def uniprot():
     df_protein.to_csv(concept_path + "/concept.csv", index=False)
 
     # gene_coding_protein
-    gene_coding_protein = pd.read_csv("./results/hgnc/gene_coding_protein/relation_raw.csv")
+    gene_coding_protein = pd.read_csv("../../results/hgnc/gene_coding_protein/relation_raw.csv")
     gene_coding_protein_df = copy.deepcopy(_relation)
 
     df_protein.set_index('original_code', inplace=True)
@@ -70,12 +70,12 @@ def uniprot():
             relation_node_id = df_protein.loc[protein_name, 'node_id']
             gene_coding_protein_df = add_relation(gene_coding_protein_df, '', node_id, relation_node_id,
                                                   'Gene_Coding_Protein', 'HGNC', '')
-    concept_path = "./results/mapping/gene_coding_protein"
+    concept_path = "../../results/mapping/gene_coding_protein"
     os.makedirs(concept_path, exist_ok=True)
     pd.DataFrame(gene_coding_protein_df).to_csv(concept_path + "/relation.csv", index=False)
 
     # protein to go
-    protein2go = pd.read_csv("./results/go/protein2go_relation/relation_raw.csv")
+    protein2go = pd.read_csv("../../results/go/protein2go_relation/relation_raw.csv")
     protein2go_df = copy.deepcopy(_relation)
 
     for idx, row in protein2go.iterrows():
@@ -86,7 +86,7 @@ def uniprot():
             node_id = df_protein.loc[protein_name, 'node_id']
             protein2go_df = add_relation(protein2go_df, '', node_id, relation_node_id,
                                          relation_tag, 'GO', '')
-    concept_path = "./results/mapping/protein2go"
+    concept_path = "../../results/mapping/protein2go"
     os.makedirs(concept_path, exist_ok=True)
     pd.DataFrame(protein2go_df).to_csv(concept_path + "/relation.csv", index=False)
 

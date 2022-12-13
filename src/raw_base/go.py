@@ -5,15 +5,15 @@
 import copy
 
 import pandas as pd
-from util import generate_id_with_origin_code, add_node, add_data, add_relation, generate_id
-from util import _node, _relation, log, db_code
+from term.src.utils.util import generate_id_with_origin_code, add_node, add_data, add_relation, generate_id
+from term.src.utils.util import base_node, base_relation, log, db_code, root_path
 import os
 
 # save_path = "./results/go"
 # os.makedirs(save_path, exist_ok=True)
 
-go_path = "./input/GO/go.obo"
-go_protein_path = "./input/GO/goa_human.gaf"  # go protein
+go_path = root_path + "/input/GO/go.obo"
+go_protein_path = root_path + "/input/GO/goa_human.gaf"  # go protein
 
 
 def go():
@@ -22,13 +22,14 @@ def go():
     lines = f.readlines()
     f.close()
 
-    node = copy.deepcopy(_node)
-    alias_node = copy.deepcopy(_node)
-    relation = copy.deepcopy(_relation)
-    protein2go_relation = copy.deepcopy(_relation)
+    node = copy.deepcopy(base_node)
+    alias_node = copy.deepcopy(base_node)
+    relation = copy.deepcopy(base_relation)
+    protein2go_relation = copy.deepcopy(base_relation)
+    gene2go_relation = copy.deepcopy(base_relation)
 
     # DB DB code DBObjectSymbol Qualifier GO_ID Evidence_Code
-    go_protein_df = pd.read_csv(go_protein_path, sep='\t', skiprows=42, usecols=[0, 1, 2, 3, 4, 6, 8], header=None)
+    go_protein_df = pd.read_csv(go_protein_path, sep='\t', skiprows=41, usecols=[0, 1, 2, 3, 4, 6, 8], header=None)
 
     node.update({"class": [], "is_obsolete": [], "definition": []})
     is_A = False
@@ -36,22 +37,22 @@ def go():
     node_seq_id = 1  # 添加偏置
     rel_seq_id = 1
 
-    node_id = [generate_id_with_origin_code("C", db_code["GO"], id) for id in list(go_protein_df[4])]
+    all_node_id = [generate_id_with_origin_code("C", db_code["GO"], id) for id in list(go_protein_df[4])]
     protein_name = list(go_protein_df[1])
     relation_tag = list(go_protein_df[3])
-    tag = ['Protein_' + i.replace('NOT|', 'not_') for i in relation_tag]
+    protein_tag = ['Protein_' + i.replace('NOT|', 'not_') for i in relation_tag]
 
     relation_id = [generate_id("R", db_code["GO"], i) for i in range(1, go_protein_df.shape[0] + 1)]
     rel_seq_id += go_protein_df.shape[0] + 1
 
     protein2go_relation['relation_id'] = relation_id
     protein2go_relation['node_id'] = protein_name
-    protein2go_relation['relationed_node_id'] = node_id
-    protein2go_relation['relation_tag'] = tag
+    protein2go_relation['relationed_node_id'] = all_node_id
+    protein2go_relation['relation_tag'] = protein_tag
     protein2go_relation['source'] = ['GO' for _ in relation_tag]
     protein2go_relation['original_code'] = ['' for _ in relation_tag]
 
-    protein2go_relation_path = "./results/go/protein2go_relation"
+    protein2go_relation_path = root_path + "/results/mapping/protein2go"
     os.makedirs(protein2go_relation_path, exist_ok=True)
     pd.DataFrame(protein2go_relation).to_csv(protein2go_relation_path + f"/relation_raw.csv", index=False)
 
@@ -61,6 +62,8 @@ def go():
     is_obsolete = "false"
 
     node_id = 'zhaoliangID'
+
+    status = 0
 
     for line in lines:
         if line.startswith('[Term]') and status == 0:
@@ -128,20 +131,38 @@ def go():
             is_obsolete = line.split(": ")[1].strip()
             continue
 
-    log.info(f"GO total term {len(node['node_id'])}")
-    log.info(f"GO total alias node term {len(alias_node['node_id'])}")
-
-    concept_path = "./results/go/concept"
+    concept_path = root_path + "/results/go/concept"
     os.makedirs(concept_path, exist_ok=True)
     pd.DataFrame(node).to_csv(concept_path + "/concept.csv", index=False)
 
-    synonym_path = "./results/go/synonym"
+    synonym_path = root_path + "/results/go/synonym"
     os.makedirs(synonym_path, exist_ok=True)
     pd.DataFrame(alias_node).to_csv(synonym_path + f"/concept.csv", index=False)
 
-    relation_path = "./results/go/relation"
+    relation_path = root_path + "/results/go/relation"
     os.makedirs(relation_path, exist_ok=True)
     pd.DataFrame(relation).to_csv(relation_path + f"/relation.csv", index=False)
+
+    gene_name = list(go_protein_df[2])
+    gene_tag = ['Gene_' + i.replace('NOT|', 'not_') for i in relation_tag]
+
+    relation_id = [generate_id("R", db_code["GO"], i) for i in range(rel_seq_id, rel_seq_id + go_protein_df.shape[0])]
+    rel_seq_id += go_protein_df.shape[0] + 1
+
+    print(len(relation_id), len(relation_id), len(gene_tag), len(all_node_id))
+    gene2go_relation['relation_id'] = relation_id
+    gene2go_relation['node_id'] = gene_name
+    gene2go_relation['relationed_node_id'] = all_node_id
+    gene2go_relation['relation_tag'] = gene_tag
+    gene2go_relation['source'] = ['GO' for _ in gene_tag]
+    gene2go_relation['original_code'] = ['' for _ in gene_tag]
+
+    gene2go_relation_path = root_path + "/results/mapping/gene2go"
+    os.makedirs(gene2go_relation_path, exist_ok=True)
+    df_gene2go_relation = pd.DataFrame(gene2go_relation)
+    df_gene2go_relation.dropna(subset=['node_id'], axis=0, inplace=True, how='any')
+
+    df_gene2go_relation.to_csv(gene2go_relation_path + f"/relation_raw.csv", index=False)
 
 
 if __name__ == "__main__":
